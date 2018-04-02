@@ -1,42 +1,34 @@
 package com.eelessam.data.munging;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
+import com.eelessam.data.munging.model.DailyWeatherInformation;
+import com.eelessam.data.munging.util.FileExtractor;
+
+import java.util.List;
 
 public class WeatherData {
 
     public int getBiggestTemperatureSpread() {
 
-        TemperatureSpread biggestTemperatureSpread = null;
+        DailyWeatherInformation biggestDailyWeatherInformation = null;
 
-        try (LineNumberReader bufferedReader = new LineNumberReader(new FileReader(new File(WeatherData.class.getClassLoader().getResource("data-file/weather.dat").getFile())))) {
+        List<String> linesOfFile = FileExtractor.readInFile("data-file/weather.dat");
+        linesOfFile.remove(0);
+        linesOfFile.remove(0);
+        linesOfFile.remove(30);
 
-            String currentLine;
+        for (String line : linesOfFile) {
+            String[] splitLine = splitLine(line);
+            int day = Integer.parseInt(splitLine[Columns.DAY.getPosition()].replaceAll("\\D+", ""));
+            int maxTemp = Integer.parseInt(splitLine[Columns.MAX.getPosition()].replaceAll("\\D+", ""));
+            int minTemp = Integer.parseInt(splitLine[Columns.MIN.getPosition()].replaceAll("\\D+", ""));
+            int tempSpread = maxTemp - minTemp;
 
-            while ((currentLine = bufferedReader.readLine()) != null) {
-                if (bufferedReader.getLineNumber() == 1 || bufferedReader.getLineNumber() == 2 || bufferedReader.getLineNumber() == 33) {
-                    continue;
-                }
-
-                String[] splitLine = splitLine(currentLine);
-                int day = Integer.parseInt(splitLine[Columns.DAY.getPosition()].replaceAll("\\D+", ""));
-                int maxTemp = Integer.parseInt(splitLine[Columns.MAX.getPosition()].replaceAll("\\D+", ""));
-                int minTemp = Integer.parseInt(splitLine[Columns.MIN.getPosition()].replaceAll("\\D+", ""));
-                int tempSpread = maxTemp - minTemp;
-
-                if (biggestTemperatureSpread == null || tempSpread > biggestTemperatureSpread.getTemperatureSpread()) {
-                    biggestTemperatureSpread = new TemperatureSpread(day, tempSpread);
-                }
-
+            if (biggestDailyWeatherInformation == null || tempSpread > biggestDailyWeatherInformation.getTemperatureSpread()) {
+                biggestDailyWeatherInformation = new DailyWeatherInformation(day, tempSpread);
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        return biggestTemperatureSpread.getDay();
+        return biggestDailyWeatherInformation.getDay();
     }
 
     private String[] splitLine(String currentLine) {
