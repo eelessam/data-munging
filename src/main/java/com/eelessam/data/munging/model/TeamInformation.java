@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class TeamInformation {
 
-    private String teamName;
     private int differenceInGoals;
+    private String teamName;
 
 }

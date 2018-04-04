@@ -1,30 +1,33 @@
 package com.eelessam.data.munging.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FileExtractor {
+public class LineExtractor {
 
-    private FileExtractor() {
+    private LineExtractor() {
 
     }
 
-    private static final Logger LOGGER = Logger.getLogger(FileExtractor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LineExtractor.class.getName());
 
-    public static List<String> readInFile(String filePath) {
+    public static List<String> extractLinesFromFile(String filePath, List<Integer> linesToExclude) {
 
         List<String> lines = new ArrayList<>();
-        try (BufferedReader lineNumberReader = new BufferedReader(new FileReader(new File(FileExtractor.class.getClassLoader().getResource(filePath).getFile())))) {
+        try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(new File(LineExtractor.class.getClassLoader().getResource(filePath).getFile())))) {
 
             String currentLine;
 
             while ((currentLine = lineNumberReader.readLine()) != null) {
+                if (linesToExclude.contains(lineNumberReader.getLineNumber())) {
+                    continue;
+                }
                 lines.add(currentLine);
             }
         } catch (IOException e) {
